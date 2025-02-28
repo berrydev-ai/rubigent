@@ -29,7 +29,6 @@ RSpec.describe Rubigent::Agent do
     end
 
     it "includes the description in the prompt" do
-      expected_prompt = "System: #{description}\n\nUser: #{prompt}"
       agent.run(prompt)
       expect(model).to have_received(:generate).with(a_string_including(description))
       expect(model).to have_received(:generate).with(a_string_including(prompt))

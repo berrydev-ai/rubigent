@@ -14,12 +14,12 @@ module Rubigent
 
   class Agent
     attr_accessor :model,
-                  :description,
-                  :response_model,
-                  :structured_outputs,
-                  :tools,
-                  :show_tool_calls,
-                  :markdown
+      :description,
+      :response_model,
+      :structured_outputs,
+      :tools,
+      :show_tool_calls,
+      :markdown
 
     def initialize(
       model:,
@@ -75,9 +75,9 @@ module Rubigent
       # - Provide the agent's description as a system-style message
       # - Provide user prompt next
       <<~PROMPT
-      System: #{@description}
+        System: #{@description}
 
-      User: #{user_prompt}
+        User: #{user_prompt}
       PROMPT
     end
 

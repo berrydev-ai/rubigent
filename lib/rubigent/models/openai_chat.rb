@@ -18,13 +18,13 @@ module Rubigent
         body = {
           model: @engine,
           messages: [
-            { role: "system", content: "You are a helpful assistant." },
-            { role: "user", content: prompt }
+            {role: "system", content: "You are a helpful assistant."},
+            {role: "user", content: prompt}
           ]
         }
         headers = {
           "Content-Type" => "application/json",
-          "Authorization" => "Bearer #{ENV['OPENAI_API_KEY']}"
+          "Authorization" => "Bearer #{ENV["OPENAI_API_KEY"]}"
         }
 
         http_response = Net::HTTP.post(uri, body.to_json, headers)

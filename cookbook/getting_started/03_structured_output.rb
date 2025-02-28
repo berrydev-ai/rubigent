@@ -31,7 +31,7 @@ module Cookbook
         puts "Title: #{movie_script.name}"
         puts "Genre: #{movie_script.genre}"
         puts "Setting: #{movie_script.setting}"
-        puts "Characters: #{movie_script.characters.join(', ')}"
+        puts "Characters: #{movie_script.characters.join(", ")}"
         puts "Storyline: #{movie_script.storyline}"
         puts "Ending: #{movie_script.ending}"
       end

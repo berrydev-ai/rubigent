@@ -23,7 +23,7 @@ module Cookbook
         puts "Ending: #{movie_script.ending}"
         puts "Genre: #{movie_script.genre}"
         puts "Name: #{movie_script.name}"
-        puts "Characters: #{movie_script.characters.join(', ')}"
+        puts "Characters: #{movie_script.characters.join(", ")}"
         puts "Storyline: #{movie_script.storyline}"
       end
     end
