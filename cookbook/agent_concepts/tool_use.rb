@@ -33,9 +33,12 @@ module Cookbook
         console.info("Sending prompt: #{prompt}")
 
         # Use a spinner for the agent call
-        response = console.spinner("Running initial agent query") do
-          agent_with_tools.run(prompt)
+        result = nil
+        success = console.spinner("Running initial agent query") do
+          result = agent_with_tools.run(prompt)
+          true
         end
+        response = result
 
         console.print_box(response.content, title: "Agent Response", color: :green)
 

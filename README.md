@@ -93,7 +93,7 @@ puts "Content: #{response.content}"
 puts "Event: #{response.event}"
 puts "Run ID: #{response.run_id}"
 puts "Metrics: #{response.metrics.inspect}"
-puts "Extra Data: #{response.extra_data.to_dict.inspect}"
+puts "Extra Data: #{response.extra_data.to_h.inspect}"
 
 # Convert to JSON
 puts response.to_json

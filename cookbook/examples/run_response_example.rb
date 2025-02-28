@@ -28,7 +28,7 @@ class ReasoningStep
     @thought = thought
   end
 
-  def to_dict
+  def to_h
     { step: @step, thought: @thought }
   end
 end
@@ -90,7 +90,7 @@ def run_with_events(agent, prompt)
     puts "Model: #{response.model}"
     puts "Run ID: #{response.run_id}"
     puts "Metrics: #{response.metrics.inspect}"
-    puts "Extra Data: #{response.extra_data.to_dict.inspect}"
+    puts "Extra Data: #{response.extra_data.to_h.inspect}"
     puts "---"
 
     # Return the response

@@ -40,7 +40,7 @@ module Rubigent
       def print_box(content, title: nil, color: :blue, width: nil)
         color_sym = COLOR_MAP[color.to_sym] || color.to_sym
 
-        CLI::UI::Frame.open(title || "", color: color_sym, width: width) do
+        CLI::UI::Frame.open(title || "", color: color_sym) do
           puts content.to_s
         end
       end

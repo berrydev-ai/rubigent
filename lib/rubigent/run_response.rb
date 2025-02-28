@@ -23,13 +23,13 @@ module Rubigent
       @reasoning_messages = reasoning_messages
     end
 
-    def to_dict
+    def to_h
       dict = {}
-      dict["add_messages"] = @add_messages.map(&:to_dict) if @add_messages
-      dict["history"] = @history.map(&:to_dict) if @history
-      dict["reasoning_messages"] = @reasoning_messages.map(&:to_dict) if @reasoning_messages
-      dict["reasoning_steps"] = @reasoning_steps.map(&:to_dict) if @reasoning_steps
-      dict["references"] = @references.map(&:to_dict) if @references
+      dict["add_messages"] = @add_messages.map(&:to_h) if @add_messages
+      dict["history"] = @history.map(&:to_h) if @history
+      dict["reasoning_messages"] = @reasoning_messages.map(&:to_h) if @reasoning_messages
+      dict["reasoning_steps"] = @reasoning_steps.map(&:to_h) if @reasoning_steps
+      dict["references"] = @references.map(&:to_h) if @references
       dict
     end
   end
@@ -95,7 +95,7 @@ module Rubigent
       @created_at = created_at
     end
 
-    def to_dict
+    def to_h
       dict = {}
 
       # Add all non-nil attributes except special cases
@@ -110,23 +110,23 @@ module Rubigent
       end
 
       # Handle special cases
-      dict["messages"] = @messages.map(&:to_dict) if @messages
-      dict["extra_data"] = @extra_data.to_dict if @extra_data
-      dict["images"] = @images.map(&:to_dict) if @images
-      dict["videos"] = @videos.map(&:to_dict) if @videos
-      dict["audio"] = @audio.map(&:to_dict) if @audio
-      dict["response_audio"] = @response_audio.to_dict if @response_audio
+      dict["messages"] = @messages.map(&:to_h) if @messages
+      dict["extra_data"] = @extra_data.to_h if @extra_data
+      dict["images"] = @images.map(&:to_h) if @images
+      dict["videos"] = @videos.map(&:to_h) if @videos
+      dict["audio"] = @audio.map(&:to_h) if @audio
+      dict["response_audio"] = @response_audio.to_h if @response_audio
 
       # Handle content if it's a special object
-      if @content.respond_to?(:to_dict)
-        dict["content"] = @content.to_dict
+      if @content.respond_to?(:to_h)
+        dict["content"] = @content.to_h
       end
 
       dict
     end
 
     def to_json
-      JSON.pretty_generate(to_dict)
+      JSON.pretty_generate(to_h)
     end
 
     def get_content_as_string(**kwargs)
