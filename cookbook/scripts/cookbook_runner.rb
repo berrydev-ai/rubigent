@@ -10,9 +10,11 @@ require_relative "../agent_concepts/async/basic"
 require_relative "../agent_concepts/structured_output"
 require_relative "../agent_concepts/tool_use"
 require_relative "../examples/agents/movie_recommendation"
+require_relative "../examples/rich_logging"
 require_relative "../getting_started/01_basic_agent"
 require_relative "../getting_started/02_agent_with_tools"
 require_relative "../getting_started/03_structured_output"
+require_relative "../getting_started/04_rich_agent"
 
 module Cookbook
   module Scripts
@@ -25,11 +27,13 @@ module Cookbook
 
         # Example agents
         "movie_recommendation" => Cookbook::Examples::Agents::MovieRecommendation,
+        "rich_logging" => Cookbook::Examples::RichLogging,
 
         # Getting started
         "basic_agent" => Cookbook::GettingStarted::BasicAgent,
         "agent_with_tools" => Cookbook::GettingStarted::AgentWithTools,
-        "structured_output_example" => Cookbook::GettingStarted::StructuredOutput
+        "structured_output_example" => Cookbook::GettingStarted::StructuredOutput,
+        "rich_agent" => Cookbook::GettingStarted::RichAgent
       }.freeze
 
       def self.run
