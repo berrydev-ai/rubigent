@@ -1,0 +1,4 @@
+example_id                   | status | run_time        |
+---------------------------- | ------ | --------------- |
+./spec/rubigent_spec.rb[1:1] | passed | 0.00038 seconds |
+./spec/rubigent_spec.rb[1:2] | passed | 0.00146 seconds |
