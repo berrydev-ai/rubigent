@@ -56,7 +56,11 @@ module Rubigent
         parsed_response = parse_response(full_response)
 
         # Return a RunResponse with the parsed content
-        RunResponse.new(parsed_response)
+        RunResponse.new(
+          content: parsed_response,
+          event: RunEvent::RUN_COMPLETED,
+          model: @model.engine
+        )
       else
         # For non-streaming, just use the parent class implementation
         super(user_prompt)

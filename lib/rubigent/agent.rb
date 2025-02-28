@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 
 require "json"
+require_relative "run_response"
+require_relative "run_event"
 
 module Rubigent
-  # Simple container for run-time output
-  class RunResponse
-    attr_accessor :content
-
-    def initialize(content)
-      @content = content
-    end
-  end
 
   class Agent
     attr_accessor :model,
@@ -53,7 +47,7 @@ module Rubigent
       parsed_response = parse_response(raw_response)
 
       # 3. Return a RunResponse (or the parsed object) so you can further manipulate or display
-      RunResponse.new(parsed_response)
+      RunResponse.new(content: parsed_response)
     end
 
     ##

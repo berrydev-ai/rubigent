@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
 
   # Dependencies
   spec.add_dependency "concurrent-ruby", "~> 1.2"  # For concurrency support
+  spec.add_dependency "cli-ui", "~> 2.3.0" # For building command line interfaces
 
   # Development dependencies
   spec.add_development_dependency "rspec", "~> 3.12"

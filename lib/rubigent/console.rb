@@ -1,192 +1,132 @@
 # frozen_string_literal: true
 
-require "io/console"
-require "stringio"
+require 'cli/ui'
+
+CLI::UI::StdoutRouter.enable
 
 module Rubigent
   # Console utility class for rich output
   class Console
-    COLORS = {
-      reset: "\e[0m",
-      bold: "\e[1m",
-      dim: "\e[2m",
-      italic: "\e[3m",
-      underline: "\e[4m",
-      blink: "\e[5m",
-      reverse: "\e[7m",
-      hidden: "\e[8m",
-
-      black: "\e[30m",
-      red: "\e[31m",
-      green: "\e[32m",
-      yellow: "\e[33m",
-      blue: "\e[34m",
-      magenta: "\e[35m",
-      cyan: "\e[36m",
-      white: "\e[37m",
-
-      bg_black: "\e[40m",
-      bg_red: "\e[41m",
-      bg_green: "\e[42m",
-      bg_yellow: "\e[43m",
-      bg_blue: "\e[44m",
-      bg_magenta: "\e[45m",
-      bg_cyan: "\e[46m",
-      bg_white: "\e[47m"
-    }.freeze
-
-    BOX_CHARS = {
-      top_left: "┏",
-      top_right: "┓",
-      bottom_left: "┗",
-      bottom_right: "┛",
-      horizontal: "━",
-      vertical: "┃",
-      title_left: "┣",
-      title_right: "┫"
+    # Color mapping from legacy colors to CLI::UI colors
+    COLOR_MAP = {
+      black: :black,
+      red: :red,
+      green: :green,
+      yellow: :yellow,
+      blue: :blue,
+      magenta: :magenta,
+      cyan: :cyan,
+      white: :white,
+      # Add mappings for other colors as needed
     }.freeze
 
     class << self
       def terminal_width
-        IO.console.winsize[1] rescue 80
+        CLI::UI::Terminal.width
       end
 
       def colorize(text, color)
-        return text unless color && COLORS[color]
-        "#{COLORS[color]}#{text}#{COLORS[:reset]}"
+        return text unless color
+        color_sym = COLOR_MAP[color.to_sym] || color.to_sym
+        CLI::UI.fmt("{{#{color_sym}:#{text}}}")
       end
 
       def create_box(content, title: nil, color: :blue, width: nil)
-        width ||= [terminal_width - 4, 40].max
-        content_width = width - 4
-
-        # Process content to fit within box
-        processed_content = process_content(content, content_width)
-
-        # Create box
-        box = []
-
-        # Top border with title if provided
-        if title
-          title = " #{title} "
-          title_space = [width - 2 - title.length, 0].max
-          left_space = title_space / 2
-          right_space = title_space - left_space
-
-          box << colorize("#{BOX_CHARS[:top_left]}#{BOX_CHARS[:horizontal] * left_space}#{title}#{BOX_CHARS[:horizontal] * right_space}#{BOX_CHARS[:top_right]}", color)
-        else
-          box << colorize("#{BOX_CHARS[:top_left]}#{BOX_CHARS[:horizontal] * (width - 2)}#{BOX_CHARS[:top_right]}", color)
+        capture_output do
+          print_box(content, title: title, color: color, width: width)
         end
-
-        # Content lines
-        processed_content.each do |line|
-          padding = " " * (content_width - line.length)
-          box << colorize("#{BOX_CHARS[:vertical]} ", color) + line + padding + colorize(" #{BOX_CHARS[:vertical]}", color)
-        end
-
-        # Bottom border
-        box << colorize("#{BOX_CHARS[:bottom_left]}#{BOX_CHARS[:horizontal] * (width - 2)}#{BOX_CHARS[:bottom_right]}", color)
-
-        box.join("\n")
-      end
-
-      def process_content(content, width)
-        return [""] if content.nil? || content.empty?
-
-        lines = []
-        content.to_s.split("\n").each do |line|
-          # If line is shorter than width, add it directly
-          if line.length <= width
-            lines << line
-          else
-            # Otherwise, wrap the line
-            current_line = ""
-            line.split.each do |word|
-              if current_line.empty?
-                current_line = word
-              elsif current_line.length + word.length + 1 <= width
-                current_line += " " + word
-              else
-                lines << current_line
-                current_line = word
-              end
-            end
-            lines << current_line unless current_line.empty?
-          end
-        end
-
-        lines
       end
 
       def print_box(content, title: nil, color: :blue, width: nil)
-        puts create_box(content, title: title, color: color, width: width)
+        color_sym = COLOR_MAP[color.to_sym] || color.to_sym
+
+        CLI::UI::Frame.open(title || "", color: color_sym, width: width) do
+          puts content.to_s
+        end
       end
 
-      # Stream content into a box, updating it as new content arrives
+      def process_content(content, width)
+        content.to_s.split("\n").map do |line|
+          CLI::UI::Wrap.wrap_paragraph(line, max_width: width)
+        end.flatten
+      end
+
       def stream_box(title: nil, color: :blue, width: nil)
-        width ||= [terminal_width - 4, 40].max
-        content_width = width - 4
-
-        # Create initial empty box
-        box_top = if title
-          title = " #{title} "
-          title_space = [width - 2 - title.length, 0].max
-          left_space = title_space / 2
-          right_space = title_space - left_space
-
-          colorize("#{BOX_CHARS[:top_left]}#{BOX_CHARS[:horizontal] * left_space}#{title}#{BOX_CHARS[:horizontal] * right_space}#{BOX_CHARS[:top_right]}", color)
-        else
-          colorize("#{BOX_CHARS[:top_left]}#{BOX_CHARS[:horizontal] * (width - 2)}#{BOX_CHARS[:top_right]}", color)
-        end
-
-        box_bottom = colorize("#{BOX_CHARS[:bottom_left]}#{BOX_CHARS[:horizontal] * (width - 2)}#{BOX_CHARS[:bottom_right]}", color)
-
-        puts box_top
-
-        # Create a buffer to hold content
+        color_sym = COLOR_MAP[color.to_sym] || color.to_sym
+        frame_open = false
         buffer = StringIO.new
 
-        # Return a proc that can be called to update the box
         proc do |chunk = nil, finished: false|
           if chunk
             buffer.write(chunk)
-            buffer.rewind
+          end
 
-            # Process buffer content to fit within box
-            content_lines = process_content(buffer.read, content_width)
-            buffer.seek(0, IO::SEEK_END) # Move back to end for next write
-
-            # Clear previous content (move up and clear lines)
-            print "\e[1A" * (content_lines.length + 1) if content_lines.any?
-
-            # Print content lines
-            content_lines.each do |line|
-              padding = " " * (content_width - line.length)
-              puts colorize("#{BOX_CHARS[:vertical]} ", color) + line + padding + colorize(" #{BOX_CHARS[:vertical]}", color)
-            end
-
-            # Print bottom border
-            puts box_bottom
+          if !frame_open
+            CLI::UI::Frame.open(title || "", color: color_sym, width: width)
+            frame_open = true
           end
 
           if finished
-            # Final rendering
-            buffer.rewind
-            content_lines = process_content(buffer.read, content_width)
-
-            # Clear previous content
-            print "\e[1A" * (content_lines.length + 1) if content_lines.any?
-
-            # Print content lines
-            content_lines.each do |line|
-              padding = " " * (content_width - line.length)
-              puts colorize("#{BOX_CHARS[:vertical]} ", color) + line + padding + colorize(" #{BOX_CHARS[:vertical]}", color)
-            end
-
-            # Print bottom border
-            puts box_bottom
+            puts buffer.string
+            CLI::UI::Frame.close(title || "")
           end
         end
+      end
+
+      # Add new CLI::UI convenience methods
+
+      def prompt(question, options)
+        CLI::UI::Prompt.ask(question, options: options)
+      end
+
+      def confirm(question)
+        CLI::UI::Prompt.confirm(question)
+      end
+
+      def spinner(title, &block)
+        CLI::UI::Spinner.spin(title, &block)
+      end
+
+      def spin_group
+        CLI::UI::SpinGroup.new
+      end
+
+      def success(message)
+        puts CLI::UI.fmt("{{v}} {{green:#{message}}}")
+      end
+
+      def error(message)
+        puts CLI::UI.fmt("{{x}} {{red:#{message}}}")
+      end
+
+      def info(message)
+        puts CLI::UI.fmt("{{i}} #{message}")
+      end
+
+      def warning(message)
+        puts CLI::UI.fmt("{{!}} {{yellow:#{message}}}")
+      end
+
+      def format(text)
+        CLI::UI.fmt(text)
+      end
+
+      def table(rows, header_row: nil)
+        CLI::UI::Table.new(
+          rows: rows,
+          header: header_row
+        ).render
+      end
+
+      private
+
+      def capture_output
+        output = StringIO.new
+        original_stdout = $stdout
+        $stdout = output
+        yield
+        $stdout = original_stdout
+        output.string
       end
     end
   end

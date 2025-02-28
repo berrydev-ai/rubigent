@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "rubigent/version"
+require_relative "rubigent/run_event"
+require_relative "rubigent/run_response"
 require_relative "rubigent/agent"
 require_relative "rubigent/tool"
 require_relative "rubigent/console"

@@ -9,6 +9,7 @@ Rubigent is a lightweight Ruby library for building agentic AI systems. It provi
 - Capture and process agent responses
 - Enable agents to utilize tools (if model permits)
 - Support for structured outputs
+- Track and report on agent execution with RunResponse and RunEvent
 
 ## Installation
 
@@ -46,6 +47,56 @@ agent = Rubigent::Agent.new(
 # Run the agent with a prompt
 response = agent.run("Hello, how are you?")
 puts response.content
+```
+
+### Advanced Run Response Tracking
+
+```ruby
+require "rubigent"
+
+# Create an agent
+agent = Rubigent::Agent.new(
+  model: Rubigent::Models::OpenAIChat.new(engine: "gpt-3.5-turbo"),
+  description: "You are a helpful assistant."
+)
+
+# Create a start event
+start_response = Rubigent::RunResponse.new(
+  event: Rubigent::RunEvent::RUN_STARTED,
+  content: "Starting agent run",
+  run_id: "run-123",
+  metrics: { start_time: Time.now.to_i }
+)
+
+# Run the agent
+response = agent.run("Hello, how are you?")
+
+# Add additional information to the response
+response.event = Rubigent::RunEvent::RUN_COMPLETED
+response.run_id = start_response.run_id
+response.metrics = {
+  start_time: start_response.metrics[:start_time],
+  end_time: Time.now.to_i,
+  duration: Time.now.to_i - start_response.metrics[:start_time]
+}
+
+# Add extra data
+response.extra_data = Rubigent::RunResponseExtraData.new(
+  reasoning_steps: [
+    { step: 1, thought: "Analyzing the user prompt" },
+    { step: 2, thought: "Generating a response" }
+  ]
+)
+
+# Access response data
+puts "Content: #{response.content}"
+puts "Event: #{response.event}"
+puts "Run ID: #{response.run_id}"
+puts "Metrics: #{response.metrics.inspect}"
+puts "Extra Data: #{response.extra_data.to_dict.inspect}"
+
+# Convert to JSON
+puts response.to_json
 ```
 
 ### Structured Output
@@ -121,6 +172,7 @@ Available examples include:
 - `structured_output` - Shows how to use structured outputs
 - `tool_use` - Illustrates tool integration
 - `movie_recommendation` - A complete movie recommendation agent
+- `run_response_example` - Demonstrates tracking and reporting on agent execution
 
 ## Development
 
