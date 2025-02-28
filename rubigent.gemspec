@@ -33,11 +33,13 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
+  # Dependencies
+  spec.add_dependency "concurrent-ruby", "~> 1.2"  # For concurrency support
 
   # Development dependencies
   spec.add_development_dependency "rspec", "~> 3.12"
+  spec.add_development_dependency "webmock", "~> 3.18"  # For mocking HTTP requests in tests
+  spec.add_development_dependency "vcr", "~> 6.1"       # For recording HTTP interactions in tests
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
